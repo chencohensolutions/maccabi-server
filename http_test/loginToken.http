@@ -1,0 +1,6 @@
+POST http://localhost:3040/1/loginToken HTTP/1.1
+content-type: application/json
+
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImhlbmNvaGVuODNAZ21haWwuY29tIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNjY5NDI3MzI5LCJleHAiOjE2NzIwMTkzMjl9.bYvF4LGfImH5uvlrtureVKfZPYetPFD9J69AUaL0SPc"
+}
