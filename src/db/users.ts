@@ -9,8 +9,8 @@ export enum EUserRole {
 const dbFilePath = path.join(__dirname, 'users.json');
 
 export interface IUser {
+    id: string;
     userName: string,
-    // role: EUserRole;
     password: string;
 }
 
@@ -26,24 +26,25 @@ const writeDB = (users: IUser[]): void => {
     fs.writeFileSync(dbFilePath, JSON.stringify(users, null, 2), 'utf-8');
 };
 
-export const insertUser = (user: IUser): void => {
+export const createUser = (user: IUser): void => {
     const users = readDB();
     users.push(user);
     writeDB(users);
 };
 
 export const getUsers = (): IUser[] => {
-    return readDB();
-};
-
-export const getUser = (userName: string): IUser => {
     const users = readDB();
-    return users.find(user => user.userName === userName) || { userName: '', password: '' };
+    return users;
 };
 
-export const deleteUser = (userName: string): void => {
+export const getUser = (userName: string): IUser | null => {
+    const users = readDB();
+    return users.find(user => user.userName === userName) || null;
+};
+
+export const deleteUser = (userId: string): void => {
     let users = readDB();
-    users = users.filter(user => user.userName !== userName);
+    users = users.filter(user => user.id !== userId);
     writeDB(users);
 };
 

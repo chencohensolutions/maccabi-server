@@ -1,42 +1,25 @@
-import { createRouterEndpoint, secretAuth, validEmail } from '../../utils';
-import bcrypt from 'bcrypt';
+import { createRouterEndpoint } from '../../utils';
+// import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 import config from '../../config';
 const { jwtSecret } = config;
-import { EUserRole, insertUser, getUser, getUsers } from '../../db';
+import { getUser, getUsers } from '../../db';
 
 import express from 'express';
 const router = express.Router();
 
-const register = async (userName: string, password: string) => {
-    //Hash password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-    const role = EUserRole.admin;
-
-    if (password === '' || password.length < 6) {
-        throw { code: 2, message: 'password invalid' };
-    }
-    if (userName === '' || userName.length < 3) {
-        throw { code: 3, message: 'invalid userName' };
-    }
-    try {
-        const result = await insertUser({ userName, password: hashedPassword });
-        return result;
-    } catch (err) {
-    }
-};
-
 const loginPassword = async (loginUserName: string, loginPassword: string) => {
     try {
-        let { userName, password } = await getUser(loginUserName);
+        const user = await getUser(loginUserName);
+        if (!user) {
+            throw { code: 5, message: 'user not exists' };
+        }
+        const { userName, password, id } = user;
         if (userName) {
             if (loginPassword === password) {
-                const token = jwt.sign({ userName }, jwtSecret, { expiresIn: 60 * 60 * 24 * 30 });
-                let users = [];
-                users = await getUsers();
-                return { userName, token, users };
+                const token = jwt.sign({ userName, id }, jwtSecret, { expiresIn: 60 * 60 * 24 * 30 });
+                return { userName, token, id };
             } else {
                 throw { code: 4, message: 'password incorrect' };
             }
@@ -52,22 +35,19 @@ enum ELoginTokenError {
     Unknown = 1,
     TokenExpired,
     TokenInvalid,
+    UserNotExists,
 }
-
-
 
 const loginToken = async (loginToken: string) => {
     try {
         const { userName: loginUserName } = jwt.verify(loginToken, jwtSecret) as jwt.JwtPayload;
         if (loginUserName) {
-            let { userName } = await getUser(loginUserName);
-            if (userName) {
-                let users = [];
-                users = await getUsers();
-                return { userName, users };
-            } else {
-                throw { code: ELoginTokenError.Unknown, message: 'unknown error' };
+            const user = await getUser(loginUserName);
+            if (!user) {
+                throw { code: ELoginTokenError.UserNotExists, message: 'user not exists' };
             }
+            const { userName, id } = user;
+            return { userName, id };
         } else {
             throw { code: ELoginTokenError.Unknown, message: 'unknown error' };
         }
@@ -80,12 +60,6 @@ const loginToken = async (loginToken: string) => {
         throw err;
     }
 };
-
-router.post(
-    '/register',
-    secretAuth,
-    createRouterEndpoint(async ({ body: { userName, password, role } }: any) => register(userName, password))
-);
 
 router.post(
     '/loginPassword',
