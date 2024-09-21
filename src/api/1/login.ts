@@ -8,6 +8,18 @@ import { getUser, getUsers } from '../../db';
 
 import express from 'express';
 const router = express.Router();
+interface IUserAssoc {
+    [id: string]: string;
+}
+
+const getUsersAssoc = async () => {
+    const users = await getUsers();
+    const usersAssoc = {} as IUserAssoc;
+    users.forEach((user) => {
+        usersAssoc[user.id] = user.userName;
+    });
+    return usersAssoc;
+}
 
 const loginPassword = async (loginUserName: string, loginPassword: string) => {
     try {
@@ -19,7 +31,12 @@ const loginPassword = async (loginUserName: string, loginPassword: string) => {
         if (userName) {
             if (loginPassword === password) {
                 const token = jwt.sign({ userName, id }, jwtSecret, { expiresIn: 60 * 60 * 24 * 30 });
-                return { userName, token, id };
+                return {
+                    userName,
+                    token,
+                    id,
+                    users: await getUsersAssoc()
+                };
             } else {
                 throw { code: 4, message: 'password incorrect' };
             }
@@ -47,7 +64,11 @@ const loginToken = async (loginToken: string) => {
                 throw { code: ELoginTokenError.UserNotExists, message: 'user not exists' };
             }
             const { userName, id } = user;
-            return { userName, id };
+            return { 
+                userName, 
+                id, 
+                users: await getUsersAssoc()
+             };
         } else {
             throw { code: ELoginTokenError.Unknown, message: 'unknown error' };
         }
