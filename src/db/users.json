@@ -2,6 +2,26 @@
     {
         "userName": "hen cohen",
         "password": "admin",
-        "id": "1"
+        "id": "a1"
+    },
+    {
+        "userName": "eyal",
+        "password": "eyal",
+        "id": "a2"
+    },
+    {
+        "userName": "rexi",
+        "password": "rexi",
+        "id": "a4"
+    },
+    {
+        "userName": "zoey",
+        "password": "zoey",
+        "id": "a5"
+    },
+    {
+        "userName": "sheleg",
+        "password": "sheleg",
+        "id": "a6"
     }
 ]
