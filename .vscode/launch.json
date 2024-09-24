@@ -7,7 +7,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch Server",
+            "name": "Server",
             "program": "${workspaceFolder}/src/index.ts",
             "sourceMaps": true,
             "runtimeArgs": [
